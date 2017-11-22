@@ -1,0 +1,18 @@
+<form>
+  <h2>Monthly calendar</h2>
+  <div>
+    <label>Start date (ex. 8/15/2008):</label>
+    <input name="startDate" #newStartDate>
+  </div>
+  <div>
+    <label>Number of days:</label>
+    <input name="#newNumberOfDays" #newNumberOfDays>
+  </div>
+  <div>
+    <label>Country Code:</label>
+    <input name="#newCountryCode" #newCountryCode>
+  </div>
+  <button (click)="generate(newStartDate, newNumberOfDays, newCountryCode)">
+    Show calendar
+  </button>
+</form>
