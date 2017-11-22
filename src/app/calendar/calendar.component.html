@@ -16,3 +16,16 @@
     Show calendar
   </button>
 </form>
+<table *ngFor="let key of monthKeys">
+  <tr>
+    <td *ngFor="let weekDay of weekDays">{{weekDay}}</td>
+  </tr>
+  <tr>
+    <td colspan="7" style="text-align: center">{{key}}</td>
+  </tr>
+  <tr *ngFor="let week of getWeeksByKey(key)">
+    <td *ngFor="let day of getDays(key, week)">
+      <label>{{getDate(day)}}</label>
+    </td>
+  </tr>
+</table>
