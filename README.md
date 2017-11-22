@@ -1,6 +1,7 @@
-# MonthlyCalendar
+# Monthly Calendar
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 1.0.0.
+I chose Angular to develop this project and was generated with [Angular CLI](https://github.com/angular/angular-cli) version 1.0.0, 
+so it generates a lot of boilerplate code, including part of the README. 
 
 ## Development server
 
