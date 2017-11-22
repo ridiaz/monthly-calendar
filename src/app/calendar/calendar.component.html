@@ -24,8 +24,8 @@
     <td colspan="7" style="text-align: center">{{key}}</td>
   </tr>
   <tr *ngFor="let week of getWeeksByKey(key)">
-    <td *ngFor="let day of getDays(key, week)">
-      <label>{{getDate(day)}}</label>
+    <td appColorCoded [colorClass]="getColorOfDay(day)" *ngFor="let day of getDays(key, week)">
+      <label title="{{getHolidayName(day)}}">{{getDate(day)}}</label>
     </td>
   </tr>
 </table>

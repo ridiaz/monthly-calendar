@@ -1,7 +1,7 @@
 # Monthly Calendar
 
 I chose Angular to develop this project and was generated with [Angular CLI](https://github.com/angular/angular-cli) version 1.0.0, 
-so it generates a lot of boilerplate code, including part of the README. 
+so it creates a lot of boilerplate code, including part of this README. 
 
 ## Development server
 

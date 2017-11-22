@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import * as datefns from 'date-fns';
+import {Http, Response} from '@angular/http';
+import 'rxjs/add/operator/map'
 
 @Component({
   selector: 'app-calendar',
@@ -16,7 +18,7 @@ export class CalendarComponent implements OnInit {
   weekDays: Array<any>;
   holidays: Object;
 
-  constructor() {
+  constructor(private http: Http) {
     this.weekDays = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
   }
 
@@ -28,6 +30,7 @@ export class CalendarComponent implements OnInit {
     this.startDate = newStartDate.value;
     this.numberOfDays = Number(newNumberOfDays.value);
     this.countryCode = newCountryCode.value;
+    this.holidays = {};
 
 
     console.log(this.startDate);
@@ -36,7 +39,27 @@ export class CalendarComponent implements OnInit {
     const endDateDate: Date = datefns.addDays(startDateDate, this.numberOfDays);
     const days: Array<Date> = datefns.eachDay(startDateDate, endDateDate);
 
-    this.renderCalendar(days);
+    this.getHolidays(this.countryCode, '2008').subscribe((response) => {
+      this.holidays = response['holidays'];
+      this.renderCalendar(days);
+      console.log(this.holidays);
+    }, (error) => {
+      console.log('Got an error', error);
+      this.renderCalendar(days);
+    });
+
+  }
+
+
+  getHolidays(countryCode, year){
+
+    const url = `https://holidayapi.com/v1/holidays?key=9ab5366a-1dfc-4520-aaeb-fe14b33dc0e6&country=${countryCode}&year=${year}`;
+
+    return this.http.get(url).map(
+      (response: Response) => {
+        return (<any>response.json());
+      }
+    )
 
   }
 
@@ -61,6 +84,35 @@ export class CalendarComponent implements OnInit {
       return '';
     }
     return r;
+  }
+
+  getHolidayName(date){
+    let key = datefns.format(date, 'YYYY[-]MM[-]DD');
+    if ((key in this.holidays)){
+      return this.holidays[key][0]['name'];
+    }else{
+      return '';
+    }
+  }
+
+  getColorOfDay(date){
+    const r = datefns.format(date, 'D');
+    if (r === 'Invalid Date'){
+      return 'gray';
+
+    }else if (this.isHoliday(date)){
+      return 'orange'
+    }else if(datefns.isWeekend(date)){
+
+      return 'yellow';
+
+    }else{
+      return 'green';
+    }
+  }
+
+  private isHoliday(date){
+    return datefns.format(date, 'YYYY[-]MM[-]DD') in this.holidays;
   }
 
   private mergeDays(days, weekKey): Array<Date> {
