@@ -3,6 +3,17 @@ import * as datefns from 'date-fns';
 import {Http, Response} from '@angular/http';
 import 'rxjs/add/operator/map'
 
+interface CalendarCell {
+  label: string;
+  colorClass: string;
+  holidayName: string;
+}
+
+interface MonthView {
+  key: string;
+  weeks: Array<Array<CalendarCell>>;
+}
+
 @Component({
   selector: 'app-calendar',
   templateUrl: './calendar.component.html',
@@ -13,8 +24,7 @@ export class CalendarComponent implements OnInit {
   startDate: string;
   numberOfDays: number;
   countryCode: string;
-  monthKeys: Array<any>;
-  months: Object;
+  viewMonths: Array<MonthView> = [];
   weekDays: Array<any>;
   holidays: Object;
 
@@ -64,21 +74,33 @@ export class CalendarComponent implements OnInit {
   }
 
   private renderCalendar(days: Array<Date>) {
-    this.months = CalendarComponent.groupByMonth(days);
-    this.monthKeys = CalendarComponent.getMonths(this.months);
+    const months = CalendarComponent.groupByMonth(days);
+    const monthKeys = CalendarComponent.getMonths(months);
+    const viewMonths: Array<MonthView> = [];
+    for (let i = 0; i < monthKeys.length; i++) {
+      const key = monthKeys[i];
+      const weeksByKey = CalendarComponent.groupByWeek(months[key]);
+      const weekKeys = Object.keys(weeksByKey);
+      const weeks: Array<Array<CalendarCell>> = [];
+      for (let j = 0; j < weekKeys.length; j++) {
+        const mergedDays = this.mergeDays(weeksByKey, weekKeys[j]);
+        const cells: Array<CalendarCell> = [];
+        for (let k = 0; k < mergedDays.length; k++) {
+          const day = mergedDays[k];
+          cells.push({
+            label: this.getDate(day),
+            colorClass: this.getColorOfDay(day),
+            holidayName: this.getHolidayName(day)
+          });
+        }
+        weeks.push(cells);
+      }
+      viewMonths.push({ key: key, weeks: weeks });
+    }
+    this.viewMonths = viewMonths;
   }
 
-  getWeeksByKey(key): Array<string>{
-    const weeks =  CalendarComponent.groupByWeek(this.months[key]);
-    return Object.keys(weeks);
-  }
-
-  getDays(monthKey, weekKey): Array<Date>{
-    const days =  CalendarComponent.groupByWeek(this.months[monthKey]);
-    return this.mergeDays(days, weekKey);
-  }
-
-  getDate(date){
+  private getDate(date){
     const r = datefns.format(date, 'D');
     if (r === 'Invalid Date'){
       return '';
@@ -86,7 +108,7 @@ export class CalendarComponent implements OnInit {
     return r;
   }
 
-  getHolidayName(date){
+  private getHolidayName(date){
     let key = datefns.format(date, 'YYYY[-]MM[-]DD');
     if ((key in this.holidays)){
       return this.holidays[key][0]['name'];
@@ -95,7 +117,7 @@ export class CalendarComponent implements OnInit {
     }
   }
 
-  getColorOfDay(date){
+  private getColorOfDay(date){
     const r = datefns.format(date, 'D');
     if (r === 'Invalid Date'){
       return 'gray';
@@ -129,6 +151,7 @@ export class CalendarComponent implements OnInit {
   }
 
   static groupByMonth(days: Array<Date>): Object{
+
     const groups = {};
     const len = days.length;
     for (let i=0; i < len; i=i+1){
@@ -164,7 +187,7 @@ export class CalendarComponent implements OnInit {
   }
 
 
-  static getMonths(monthlyCalendar): Array<string>{
+  static getMonths(monthlyCalendar): Array<string> {
     return Object.keys(monthlyCalendar);
   }
 
